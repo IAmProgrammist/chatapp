@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/lockIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_search_black_24dp"
+        android:orientation="vertical">
+
+    </ImageView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="4dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/roomName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="roomName"
+            android:textColor="@color/primary_text"
+            android:textSize="15dp" />
+        <TextView
+            android:id="@+id/roomDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="roomDescripiton"
+            android:textColor="@color/secondary_text"
+            android:textSize="10dp" />
+    </LinearLayout>
+
+</LinearLayout>
