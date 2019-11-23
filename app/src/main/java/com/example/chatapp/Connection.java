@@ -223,6 +223,7 @@ public class Connection implements Closeable, Serializable{
                 }
             }catch (InterruptedException e) {
                 e.printStackTrace();
+                e.printStackTrace();
                 return null;
             } catch (JSONException e) {
                 e.printStackTrace();

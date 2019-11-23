@@ -19,6 +19,7 @@ public class CreateRoomActivity extends AppCompatActivity {
     EditText login;
     EditText password;
     Connection connection = Connection.getInstance();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,21 +31,26 @@ public class CreateRoomActivity extends AppCompatActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(login.getText().toString().length() < 4 || password.getText().toString().length() < 4){
-                    if(login.getText().toString().length() < 4){
-                        login.setError("Название комнаты слишком коротко!");
+                if (!password.getText().toString().equals("") || login.getText().toString().length() < 4) {
+                    if (login.getText().toString().length() < 4 || password.getText().toString().length() < 4) {
+                        if (login.getText().toString().length() < 4) {
+                            login.setError("Название комнаты слишком коротко!");
+                        }
+                        if (password.getText().toString().length() < 4) {
+                            password.setError("Пароль слишком короткий!");
+                        }
+                    } else {
+                        doThatStuff();
                     }
-                    if(password.getText().toString().length() < 4){
-                        password.setError("Пароль слишком короткий!");
-                    }
-                }else{
+                } else {
                     doThatStuff();
                 }
             }
         });
 
     }
-    public void doThatStuff(){
+
+    public void doThatStuff() {
         try {
             HardMessage hmsg = new HardMessage();
             hmsg.setType(MessageType.HARD_MESSAGE_WITH_ARRAY_OF_REGISTER_ROOM);
@@ -59,12 +65,12 @@ public class CreateRoomActivity extends AppCompatActivity {
                     Container.setRoom_login(login.getText().toString());
                     Container.setRoom_password(password.getText().toString());
                     Intent intent = new Intent(CreateRoomActivity.this, ChatActivitry.class);
-                    intent.putExtra("RoomName", msg.getData());
+                    intent.putExtra("RoomName", login.getText().toString());
                     startActivity(intent);
                     break;
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             AlertDialog.Builder builder = new AlertDialog.Builder(CreateRoomActivity.this);
             builder.setTitle("Ошибка!")
                     .setMessage("Вы отключились!")
@@ -96,6 +102,7 @@ public class CreateRoomActivity extends AppCompatActivity {
             alert.show();
         }
     }
+
     public void onBackPressed() {
         Intent intent = new Intent(this, JoinOrCreateRoomActivity.class);
         startActivity(intent);

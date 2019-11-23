@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
                 StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
                 StrictMode.setThreadPolicy(policy);
             }
-            String serverAddress = "192.168.1.39";          //82.151.126.74
+            String serverAddress = "82.151.126.74";          //82.151.126.74
             int serverPort = 2156;
             Socket socket = new Socket(serverAddress, serverPort);
             Connection.createInstance(socket);

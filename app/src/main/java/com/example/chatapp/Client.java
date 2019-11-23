@@ -139,9 +139,9 @@ public class Client implements Runnable {
                             synchronized (lock) {
                                 ChatBubble cuccle = null;
                                 if (message.getSender().equals(ChatActivitry.res_trans)) {
-                                    cuccle = new ChatBubble(message.getData(), message.getData() + " вышел из чата.", true);
+                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " вышел из чата.", true);
                                 } else {
-                                    cuccle = new ChatBubble(message.getData(), message.getData() + " вышел из чата.", false);
+                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " вышел из чата.", false);
                                 }
                                 bubbles.add(cuccle);
                                 chatBubbleArrayAdapter.notifyDataSetChanged();
