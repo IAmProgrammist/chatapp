@@ -2,6 +2,7 @@ package com.example.chatapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Service;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -32,12 +33,14 @@ public class ChatActivitry extends AppCompatActivity {
     public static Activity staticActivity;
     public static List<String> users;
     public static TextView curUsers;
-    public void setStaticActivity(){
+
+    public void setStaticActivity() {
         staticActivity = this;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Container.setLaunched(true);
         super.onCreate(savedInstanceState);
         String chat_name = getIntent().getExtras().getString("RoomName");
         setStaticActivity();
@@ -54,7 +57,7 @@ public class ChatActivitry extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    if(!editText.getText().toString().equals("")) {
+                    if (!editText.getText().toString().equals("")) {
                         if (msg_pressed + 2000 < System.currentTimeMillis()) {
                             Connection connection = Connection.getInstance();
                             HardMessage message = new HardMessage();
@@ -69,92 +72,108 @@ public class ChatActivitry extends AppCompatActivity {
 
                     }
                 } catch (Exception e) {
-                    if (Container.getLogin().equals("") && Container.getPassword().equals("")) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivitry.this);
-                        builder.setTitle("Ошибка!")
-                                .setMessage("Потеря соединения с сервером!")
-                                .setCancelable(false)
-                                .setNegativeButton("Перезагрузить приложение",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                Container.nullate();
-                                                Intent intent = new Intent(ChatActivitry.this, MainActivity.class);
-                                                startActivity(intent);
-                                                HardMessage message1 = new HardMessage();
-                                                message1.setType(MessageType.EXIT_PROGRAM);
-                                                try {
-                                                    connection.send(message1);
-                                                } catch (Exception e) {
+                    if (Container.isLaunched()) {
+                        if (Container.getLogin().equals("") && Container.getPassword().equals("")) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivitry.this);
+                            builder.setTitle("Ошибка!")
+                                    .setMessage("Потеря соединения с сервером!")
+                                    .setCancelable(false)
+                                    .setNegativeButton("Перезагрузить приложение",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    Container.nullate();
+                                                    Intent intent = new Intent(ChatActivitry.this, MainActivity.class);
+                                                    startActivity(intent);
+                                                    HardMessage message1 = new HardMessage();
+                                                    message1.setType(MessageType.EXIT_PROGRAM);
+                                                    try {
+                                                        connection.send(message1);
+                                                    } catch (Exception e) {
 
+                                                    }
                                                 }
-                                            }
-                                        }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                    finishAffinity();
-                                } else {
-                                    ActivityCompat.finishAffinity(ChatActivitry.this);
+                                            }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                        finishAffinity();
+                                    } else {
+                                        ActivityCompat.finishAffinity(ChatActivitry.this);
+                                    }
                                 }
-                            }
-                        });
-                        AlertDialog alert = builder.create();
-                        alert.show();
+                            });
+                            AlertDialog alert = builder.create();
+                            alert.show();
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivitry.this);
+                            builder.setTitle("Ошибка!")
+                                    .setMessage("Потеря соединения с сервером!")
+                                    .setCancelable(false)
+                                    .setNegativeButton("Перезагрузить приложение",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    Container.nullate();
+                                                    Intent intent = new Intent(ChatActivitry.this, MainActivity.class);
+                                                    startActivity(intent);
+                                                    HardMessage message1 = new HardMessage();
+                                                    message1.setType(MessageType.EXIT_PROGRAM);
+                                                    try {
+                                                        connection.send(message1);
+                                                    } catch (Exception e) {
+
+                                                    }
+                                                }
+                                            }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                        finishAffinity();
+                                    } else {
+                                        ActivityCompat.finishAffinity(ChatActivitry.this);
+                                    }
+                                }
+                            }).setPositiveButton("Перезайти в комнату", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    HardMessage message1 = new HardMessage();
+                                    message1.setType(MessageType.EXIT_PROGRAM);
+                                    try {
+                                        connection.send(message1);
+                                    } catch (Exception e) {
+
+                                    }
+                                    Client.destroy = true;
+                                    Intent intent = new Intent(ChatActivitry.this, MainActivity.class);
+                                    startActivity(intent);
+                                }
+                            });
+                            AlertDialog alert = builder.create();
+                            alert.show();
+                        }
                     } else {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivitry.this);
-                        builder.setTitle("Ошибка!")
-                                .setMessage("Потеря соединения с сервером!")
-                                .setCancelable(false)
-                                .setNegativeButton("Перезагрузить приложение",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                Container.nullate();
-                                                Intent intent = new Intent(ChatActivitry.this, MainActivity.class);
-                                                startActivity(intent);
-                                                HardMessage message1 = new HardMessage();
-                                                message1.setType(MessageType.EXIT_PROGRAM);
-                                                try {
-                                                    connection.send(message1);
-                                                } catch (Exception e) {
+                        HardMessage message1 = new HardMessage();
+                        message1.setType(MessageType.EXIT_PROGRAM);
+                        try {
+                            connection.send(message1);
+                        } catch (Exception e1) {
 
-                                                }
-                                            }
-                                        }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                    finishAffinity();
-                                } else {
-                                    ActivityCompat.finishAffinity(ChatActivitry.this);
-                                }
-                            }
-                        }).setPositiveButton("Перезайти в комнату", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                HardMessage message1 = new HardMessage();
-                                message1.setType(MessageType.EXIT_PROGRAM);
-                                try {
-                                    connection.send(message1);
-                                } catch (Exception e) {
-
-                                }
-                                Intent intent = new Intent(ChatActivitry.this, MainActivity.class);
-                                startActivity(intent);
-                            }
-                        });
-                        AlertDialog alert = builder.create();
-                        alert.show();
+                        }
+                        Client.destroy = true;
+                        Intent intent = new Intent(ChatActivitry.this, MainActivity.class);
+                        startActivity(intent);
                     }
                 }
             }
         });
-        startService(new Intent(this, SuperDuperService.class));
+        Intent chat = new Intent(this, SuperDuperService.class);
+        startService(chat);
         Toast.makeText(this, res_trans, Toast.LENGTH_SHORT);
     }
 
 
     @Override
     protected void onDestroy() {
+        Client.destroy = true;
         HardMessage message1 = new HardMessage();
         message1.setType(MessageType.EXIT_PROGRAM);
         try {
@@ -164,15 +183,18 @@ public class ChatActivitry extends AppCompatActivity {
         }
         super.onDestroy();
     }
+
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.chat_menu, menu);
         return true;
     }
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
+    public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id == R.id.quit){
+        if (id == R.id.quit) {
+            Client.destroy = true;
             HardMessage message1 = new HardMessage();
             message1.setType(MessageType.EXIT_PROGRAM);
             try {
@@ -185,7 +207,7 @@ public class ChatActivitry extends AppCompatActivity {
             } else {
                 ActivityCompat.finishAffinity(this);
             }
-        }else if(id == R.id.change){
+        } else if (id == R.id.change) {
             HardMessage message1 = new HardMessage();
             message1.setType(MessageType.I_WANNA_RELOGIN);
             try {
@@ -193,12 +215,13 @@ public class ChatActivitry extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            Client.destroy = true;
             Intent intent = new Intent(this, JoinOrCreateRoomActivity.class);
             startActivity(intent);
-        }else if(id == R.id.usrs){
+        } else if (id == R.id.usrs) {
             users = Client.users;
             String msg = "";
-            for(String j: users){
+            for (String j : users) {
                 msg += j + "\n";
             }
             final AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivitry.this);
@@ -211,7 +234,7 @@ public class ChatActivitry extends AppCompatActivity {
             alert.show();
         }
         return super.onOptionsItemSelected(item);
-        }
+    }
 
 
     private static long back_pressed;
@@ -228,12 +251,31 @@ public class ChatActivitry extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            Client.destroy = true;
             Intent intent = new Intent(this, JoinOrCreateRoomActivity.class);
             startActivity(intent);
         } else {
             Toast.makeText(getBaseContext(), "Нажмите кнопку 'назад' ещё раз, чтобы выйти из комнаты!", Toast.LENGTH_SHORT).show();
         }
         back_pressed = System.currentTimeMillis();
+    }
+
+    @Override
+    protected void onPause() {
+        Container.setLaunched(false);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        Container.setLaunched(true);
+        super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        Container.setLaunched(false);
+        super.onStop();
     }
 }
 

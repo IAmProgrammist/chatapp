@@ -162,12 +162,18 @@ public class Connection implements Closeable, Serializable{
                         msg.add(tmpMessage);
                     }
                     return msg;
-                }else{
+                }else if(MessageType.valueOf(String.valueOf(json.get("type"))) == MessageType.CHECK_CONN){
+                    HardMessage msg = new HardMessage();
+                    msg.setType(MessageType.CONN_CONN);
+                    send(msg);
+                    List<Message> res = recieveHistory();
+                    return res;
+                }else {
                     throw new IOException();
                 }
             }
         }
-        return null;
+        throw new IOException();
     }
 
     public Message receive() throws IOException{
@@ -222,15 +228,14 @@ public class Connection implements Closeable, Serializable{
                     }
                 }
             }catch (InterruptedException e) {
-                e.printStackTrace();
-                e.printStackTrace();
-                return null;
+                throw new IOException();
             } catch (JSONException e) {
-                e.printStackTrace();
-                return null;
+                throw new IOException();
+            }catch (NullPointerException e){
+                throw new IOException();
             }
         }
-        return null;
+        throw new IOException();
     }
 
     public SocketAddress getRemoteSocketAddress(){

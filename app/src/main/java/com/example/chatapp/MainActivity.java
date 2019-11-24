@@ -5,8 +5,10 @@ import androidx.core.app.ActivityCompat;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -15,6 +17,9 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class MainActivity extends AppCompatActivity {
@@ -75,53 +80,78 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         } catch (Exception e) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Ошибка!")
-                    .setMessage("Вы отключились!")
-                    .setCancelable(false)
-                    .setNegativeButton("Перезагрузить приложение",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    Container.nullate();
-                                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                                    startActivity(intent);
-                                    HardMessage message1 = new HardMessage();
-                                    message1.setType(MessageType.EXIT_PROGRAM);
-                                    try {
-                                        connection.send(message1);
-                                    } catch (Exception e) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Ошибка!")
+                        .setMessage("Вы отключились!")
+                        .setCancelable(false)
+                        .setNegativeButton("Перезагрузить приложение",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        Container.nullate();
+                                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        HardMessage message1 = new HardMessage();
+                                        message1.setType(MessageType.EXIT_PROGRAM);
+                                        try {
+                                            connection.send(message1);
+                                        } catch (Exception e) {
 
+                                        }
                                     }
-                                }
-                            }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        finishAffinity();
-                    } else {
-                        ActivityCompat.finishAffinity(MainActivity.this);
+                                }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            finishAffinity();
+                        } else {
+                            ActivityCompat.finishAffinity(MainActivity.this);
+                        }
                     }
-                }
-            }).setPositiveButton("Перезайти в комнату", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    HardMessage message1 = new HardMessage();
-                    message1.setType(MessageType.EXIT_PROGRAM);
-                    try {
-                        connection.send(message1);
-                    } catch (Exception e) {
+                }).setPositiveButton("Перезайти в комнату", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        HardMessage message1 = new HardMessage();
+                        message1.setType(MessageType.EXIT_PROGRAM);
+                        try {
+                            connection.send(message1);
+                        } catch (Exception e) {
 
+                        }
+                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                        startActivity(intent);
                     }
-                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                    startActivity(intent);
-                }
-            });
-            AlertDialog alert = builder.create();
-            alert.show();
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+
         }
 
 }
     private static long back_pressed;
+
+    @Override
+    protected void onPause() {
+        Container.setLaunched(false);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        Container.setLaunched(true);
+        super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        Container.setLaunched(false);
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        Container.setLaunched(true);
+        super.onStart();
+    }
 
     @Override
     public void onBackPressed() {
@@ -131,6 +161,27 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(), "Нажмите кнопку 'назад' ещё раз, чтобы выйти из приложения!", Toast.LENGTH_SHORT).show();
         }
         back_pressed = System.currentTimeMillis();
+    }
+    private boolean check(String address, int port) {
+
+        try {
+            Socket soc = new Socket();
+            soc.setSoTimeout(2000);
+            soc.connect(new InetSocketAddress(address, port));
+            soc.close();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+    protected boolean isOnline() {
+        String cs = Context.CONNECTIVITY_SERVICE;
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(cs);
+        if (cm.getActiveNetworkInfo() == null) {
+            return false;
+        } else {
+            return true;
+        }
     }
         /*try {
             if (android.os.Build.VERSION.SDK_INT > 9) {

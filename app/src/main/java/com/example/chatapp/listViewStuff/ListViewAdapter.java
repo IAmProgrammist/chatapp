@@ -1,6 +1,8 @@
 package com.example.chatapp.listViewStuff;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +15,8 @@ import android.widget.Toast;
 import com.example.chatapp.ChatActivitry;
 import com.example.chatapp.Connection;
 import com.example.chatapp.Container;
-import com.example.chatapp.ErrorActivity;
 import com.example.chatapp.LoginRoomActivity;
+import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.HardMessage;
 import com.example.chatapp.MessageType;
@@ -98,9 +100,27 @@ public class ListViewAdapter extends BaseAdapter {
                             }
                         }
                     }catch (Exception e){
-                        Intent intent = new Intent(mContext, ErrorActivity.class);
-                        intent.putExtra("Error", e);
-                        mContext.startActivity(intent);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                        builder.setTitle("Ошибка!")
+                                .setMessage("Вы отключились!")
+                                .setCancelable(false)
+                                .setNegativeButton("Перезагрузить приложение",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                Intent intent = new Intent(mContext, MainActivity.class);
+                                                mContext.startActivity(intent);
+                                                HardMessage message1 = new HardMessage();
+                                                message1.setType(MessageType.EXIT_PROGRAM);
+                                                try {
+                                                    Connection connection = Connection.getInstance();
+                                                    connection.send(message1);
+                                                } catch (Exception e) {
+
+                                                }
+                                            }
+                                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
                     }
                 }else if(modelList.get(position).getImage() == R.drawable.lock){
                     Intent intent = new Intent(mContext, LoginRoomActivity.class);

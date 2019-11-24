@@ -1,11 +1,29 @@
 package com.example.chatapp;
 
+import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
 public class Container {
+    private static Activity activity = MainActivity.staticActivity;
     private static String nickname = "";
     private static String login = "";
     private static String password = "";
     private static String room_login = "";
     private static String room_password = "";
+    private static boolean launched = true;
+
+    public static boolean isLaunched() {
+        return launched;
+    }
+
+    public static void setLaunched(boolean launched) {
+        Container.launched = launched;
+    }
 
     public static String getNickname() {
         return nickname;
@@ -53,4 +71,5 @@ public class Container {
         room_login = "";
         room_password = "";
     }
+
 }

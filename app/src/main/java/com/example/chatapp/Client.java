@@ -24,9 +24,11 @@ public class Client implements Runnable {
     public static TextView txtView;
     public static List<Message> messages;
     public static Object lock = new Object();
+    public static boolean destroy;
 
     @Override
     public void run() {
+        destroy = false;
         activity = ChatActivitry.staticActivity;
         users = new ArrayList<>();
         bubbles = ChatActivitry.bubbles;
@@ -91,12 +93,13 @@ public class Client implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        while (true) {
-            try {
-                final HardMessage message = (HardMessage) connection.receive();
-                if(message == null){
+        try {
+            while (true) {
 
-                }else if (message.getType() == MessageType.TEXT) {
+                final HardMessage message = (HardMessage) connection.receive();
+                if (message == null) {
+
+                } else if (message.getType() == MessageType.TEXT) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
@@ -173,65 +176,84 @@ public class Client implements Runnable {
                     HardMessage mj = new HardMessage();
                     mj.setType(MessageType.CONN_CONN);
                     connection.send(mj);
-                } else {
+                } else if(destroy){
+                    break;
+                }else{
                     throw new IOException("Unexpected MessageType");
                 }
-            } catch (IOException e) {
+            }
+        } catch (IOException e) {
+            if(Container.isLaunched()){
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
-
                     @Override
                     public void run() {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setTitle("Ошибка!")
-                        .setMessage("Вы отключились!")
-                        .setCancelable(false)
-                        .setNegativeButton("Перезагрузить приложение",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        Container.nullate();
-                                        Intent intent = new Intent(activity, MainActivity.class);
-                                        activity.startActivity(intent);
-                                        HardMessage message1 = new HardMessage();
-                                        message1.setType(MessageType.EXIT_PROGRAM);
-                                        try {
-                                            connection.send(message1);
-                                        } catch (Exception e) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                        builder.setTitle("Ошибка!")
+                                .setMessage("Вы отключились!")
+                                .setCancelable(false)
+                                .setNegativeButton("Перезагрузить приложение",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                Container.nullate();
+                                                Intent intent = new Intent(activity, MainActivity.class);
+                                                activity.startActivity(intent);
+                                                HardMessage message1 = new HardMessage();
+                                                message1.setType(MessageType.EXIT_PROGRAM);
+                                                try {
+                                                    connection.send(message1);
+                                                } catch (Exception e) {
 
-                                        }
-                                    }
-                                }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            activity.finishAffinity();
-                        } else {
-                            ActivityCompat.finishAffinity(activity);
-                        }
+                                                }
+                                            }
+                                        }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    activity.finishAffinity();
+                                } else {
+                                    ActivityCompat.finishAffinity(activity);
+                                }
+                            }
+                        }).setPositiveButton("Перезайти в комнату", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                HardMessage message1 = new HardMessage();
+                                message1.setType(MessageType.EXIT_PROGRAM);
+                                try {
+                                    connection.send(message1);
+                                } catch (Exception e) {
+
+                                }
+                                Intent intent = new Intent(activity, MainActivity.class);
+                                activity.startActivity(intent);
+                            }
+                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+
                     }
-                }).setPositiveButton("Перезайти в комнату", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        HardMessage message1 = new HardMessage();
-                        message1.setType(MessageType.EXIT_PROGRAM);
-                        try {
-                            connection.send(message1);
-                        } catch (Exception e) {
 
-                        }
+                });}else{
+                HardMessage message1 = new HardMessage();
+                message1.setType(MessageType.EXIT_PROGRAM);
+                try {
+                    connection.send(message1);
+                } catch (Exception e1) {
+
+                }
+                while(true) {
+                    if(Container.isLaunched()) {
                         Intent intent = new Intent(activity, MainActivity.class);
                         activity.startActivity(intent);
+                        break;
                     }
-                });
-                AlertDialog alert = builder.create();
-                alert.show();
+                }
             }
-        }); } catch (JSONException e) {
+        } catch (JSONException e) {
 
-            }
         }
-
-
     }
+
 
     public String cutUser(String message) {
         String[] h = message.split(":");

@@ -34,4 +34,27 @@ public class JoinOrCreateRoomActivity extends AppCompatActivity {
     public void onBackPressed() {
         Toast.makeText(this, "Вы не можете вернуться на данной стадии.", Toast.LENGTH_SHORT).show();
     }
+    @Override
+    protected void onPause() {
+        Container.setLaunched(false);
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        Container.setLaunched(true);
+        super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        Container.setLaunched(false);
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        Container.setLaunched(true);
+        super.onStart();
+    }
 }
