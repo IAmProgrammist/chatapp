@@ -39,7 +39,7 @@ public class Connection implements Closeable, Serializable{
 
     public void send(HardMessage message) throws IOException, JSONException {
         synchronized (writer) {
-            if (isOnline() && check("192.168.1.39", 2156)) {
+            if (isOnline() && check("82.151.126.74", 2156)) {
                 if (message.getStuff() == null) {
                     JSONObject messageJSON = new JSONObject();
                     messageJSON.put("type", message.getType().toString());
@@ -81,7 +81,7 @@ public class Connection implements Closeable, Serializable{
     public List<Room> receiveRooms() throws IOException, JSONException {
         String result = "";
         synchronized (reader) {
-            if (isOnline() && check("192.168.1.39", 2156)) {
+            if (isOnline() && check("82.151.126.74", 2156)) {
                 String userInput = "";
                 while (true) {
                     try {
@@ -132,7 +132,7 @@ public class Connection implements Closeable, Serializable{
     public List<Message> recieveHistory() throws JSONException, IOException {
         String result = "";
         synchronized (reader) {
-            if (isOnline() && check("192.168.1.39", 2156)) {
+            if (isOnline() && check("82.151.126.74", 2156)) {
                 String userInput = "";
                 while (true) {
                     try {
@@ -176,66 +176,71 @@ public class Connection implements Closeable, Serializable{
         throw new IOException();
     }
 
-    public Message receive() throws IOException{
-        String result = "";
-        synchronized (reader) {
-            try {
-                String userInput = "";
-                while (true) {
-                    if (socket.isConnected() && !(userInput = reader.readLine()).equals("\\n")) {
-                        result += userInput;
-                        break;
-                    }else if(userInput.equals("\\n")){
-                        ;;
-                    } else {
-                        Thread.sleep(1);
+    public Message receive() throws IOException {
+        if (isOnline() && check("82.151.126.74", 2156)) {
+            String result = "";
+            synchronized (reader) {
+                try {
+                    String userInput = "";
+                    while (true) {
+                        if (socket.isConnected() && !(userInput = reader.readLine()).equals("\\n")) {
+                            result += userInput;
+                            break;
+                        } else if (userInput.equals("\\n")) {
+                            ;
+                            ;
+                        } else {
+                            Thread.sleep(1);
+                        }
                     }
-                }
-                JSONObject json = new JSONObject(result);
-                if(MessageType.valueOf(json.getString("type")) != MessageType.HISTORY) {
-                    if (json.has("array")) {
-                        HardMessage hardMessage = new HardMessage();
-                        List<String> lol = new ArrayList<>();
-                        JSONArray array = (JSONArray) json.get("array");
-                        for (int i = 0; i < array.length(); i++) {
-                            lol.add((String) array.get(i));
+                    JSONObject json = new JSONObject(result);
+                    if (MessageType.valueOf(json.getString("type")) != MessageType.HISTORY) {
+                        if (json.has("array")) {
+                            HardMessage hardMessage = new HardMessage();
+                            List<String> lol = new ArrayList<>();
+                            JSONArray array = (JSONArray) json.get("array");
+                            for (int i = 0; i < array.length(); i++) {
+                                lol.add((String) array.get(i));
+                            }
+                            hardMessage.setType(MessageType.valueOf((String) json.get("type")));
+                            hardMessage.setStuff(lol.toArray(new String[0]));
+                            if (json.has("data")) {
+                                hardMessage.setData((String) json.get("data"));
+                            }
+                            if (json.has("roomid")) {
+                                hardMessage.setRoomId((String) json.get("roomid"));
+                            }
+                            if (json.has("sender")) {
+                                hardMessage.setSender((String) json.get("sender"));
+                            }
+                            return hardMessage;
+                        } else {
+                            HardMessage message = new HardMessage();
+                            message.setType(MessageType.valueOf((String) json.get("type")));
+                            if (json.has("data")) {
+                                message.setData((String) json.get("data"));
+                            }
+                            if (json.has("roomid")) {
+                                message.setRoomId((String) json.get("roomid"));
+                            }
+                            if (json.has("sender")) {
+                                message.setSender((String) json.get("sender"));
+                            }
+                            return message;
                         }
-                        hardMessage.setType(MessageType.valueOf((String) json.get("type")));
-                        hardMessage.setStuff(lol.toArray(new String[0]));
-                        if (json.has("data")) {
-                            hardMessage.setData((String) json.get("data"));
-                        }
-                        if (json.has("roomid")) {
-                            hardMessage.setRoomId((String) json.get("roomid"));
-                        }
-                        if (json.has("sender")) {
-                            hardMessage.setSender((String) json.get("sender"));
-                        }
-                        return hardMessage;
-                    } else {
-                        HardMessage message = new HardMessage();
-                        message.setType(MessageType.valueOf((String) json.get("type")));
-                        if (json.has("data")) {
-                            message.setData((String) json.get("data"));
-                        }
-                        if (json.has("roomid")) {
-                            message.setRoomId((String) json.get("roomid"));
-                        }
-                        if (json.has("sender")) {
-                            message.setSender((String) json.get("sender"));
-                        }
-                        return message;
                     }
+                } catch (InterruptedException e) {
+                    throw new IOException();
+                } catch (JSONException e) {
+                    throw new IOException();
+                } catch (NullPointerException e) {
+                    throw new IOException();
                 }
-            }catch (InterruptedException e) {
-                throw new IOException();
-            } catch (JSONException e) {
-                throw new IOException();
-            }catch (NullPointerException e){
-                throw new IOException();
             }
+            throw new IOException();
+        }else{
+            throw new IOException();
         }
-        throw new IOException();
     }
 
 
