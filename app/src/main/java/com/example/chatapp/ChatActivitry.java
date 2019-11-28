@@ -41,6 +41,7 @@ public class ChatActivitry extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Container.setLaunched(true);
+        Client.destroy = true;
         super.onCreate(savedInstanceState);
         String chat_name = getIntent().getExtras().getString("RoomName");
         setStaticActivity();

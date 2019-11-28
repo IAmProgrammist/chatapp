@@ -39,7 +39,7 @@ public class Connection implements Closeable, Serializable{
 
     public void send(HardMessage message) throws IOException, JSONException {
         synchronized (writer) {
-            if (isOnline() && check("82.151.126.74", 2156)) {
+            if (isOnline() && check("192.168.1.39", 2156)) {
                 if (message.getStuff() == null) {
                     JSONObject messageJSON = new JSONObject();
                     messageJSON.put("type", message.getType().toString());
@@ -81,7 +81,7 @@ public class Connection implements Closeable, Serializable{
     public List<Room> receiveRooms() throws IOException, JSONException {
         String result = "";
         synchronized (reader) {
-            if (isOnline() && check("82.151.126.74", 2156)) {
+            if (isOnline() && check("192.168.1.39", 2156)) {
                 String userInput = "";
                 while (true) {
                     try {
@@ -132,7 +132,7 @@ public class Connection implements Closeable, Serializable{
     public List<Message> recieveHistory() throws JSONException, IOException {
         String result = "";
         synchronized (reader) {
-            if (isOnline() && check("82.151.126.74", 2156)) {
+            if (isOnline() && check("192.168.1.39", 2156)) {
                 String userInput = "";
                 while (true) {
                     try {
@@ -238,11 +238,11 @@ public class Connection implements Closeable, Serializable{
         throw new IOException();
     }
 
+
     public SocketAddress getRemoteSocketAddress(){
         return this.socket.getRemoteSocketAddress();
     }
     private boolean check(String address, int port) {
-
         try {
             Socket soc = new Socket();
             soc.setSoTimeout(2000);

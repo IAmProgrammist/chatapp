@@ -95,10 +95,8 @@ public class Client implements Runnable {
         }
         try {
             while (true) {
-
                 final HardMessage message = (HardMessage) connection.receive();
                 if (message == null) {
-
                 } else if (message.getType() == MessageType.TEXT) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
