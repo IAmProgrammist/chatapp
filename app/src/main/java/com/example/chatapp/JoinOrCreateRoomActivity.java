@@ -30,10 +30,12 @@ public class JoinOrCreateRoomActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     public void onBackPressed() {
         Toast.makeText(this, "Вы не можете вернуться на данной стадии.", Toast.LENGTH_SHORT).show();
     }
+
     @Override
     protected void onPause() {
         Container.setLaunched(false);

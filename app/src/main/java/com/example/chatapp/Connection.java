@@ -16,16 +16,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Connection implements Closeable, Serializable{
+public class Connection implements Closeable, Serializable {
     private final Socket socket;
     private final BufferedReader reader;
     private final PrintWriter writer;
     private static Connection connection;
     private static Activity activity = MainActivity.staticActivity;
+
     public static void createInstance(Socket socket) throws IOException {
         connection = new Connection(socket);
     }
-    public static Connection getInstance(){
+
+    public static Connection getInstance() {
         return connection;
     }
 
@@ -49,7 +51,7 @@ public class Connection implements Closeable, Serializable{
                     if (message.getRoomId() != null) {
                         messageJSON.put("roomid", message.getRoomId());
                     }
-                    if(message.getSender() != null){
+                    if (message.getSender() != null) {
                         messageJSON.put("sender", message.getSender());
                     }
                     writer.println(messageJSON.toString());
@@ -62,7 +64,7 @@ public class Connection implements Closeable, Serializable{
                     if (message.getRoomId() != null) {
                         messageJSON.put("roomid", message.getRoomId());
                     }
-                    if(message.getSender() != null){
+                    if (message.getSender() != null) {
                         messageJSON.put("sender", message.getSender());
                     }
                     message = (HardMessage) message;
@@ -73,11 +75,12 @@ public class Connection implements Closeable, Serializable{
                     messageJSON.put("array", jsonArray);
                     writer.println(messageJSON.toString());
                 }
-            }else{
+            } else {
                 throw new IOException("Connection interrupted");
             }
         }
     }
+
     public List<Room> receiveRooms() throws IOException, JSONException {
         String result = "";
         synchronized (reader) {
@@ -98,7 +101,7 @@ public class Connection implements Closeable, Serializable{
                     }
                 }
                 JSONObject json = new JSONObject(result);
-                if(MessageType.valueOf((String) json.get("type")) == MessageType.HARD_MESSAGE_WITH_ARRAY_OF_ROOMS){
+                if (MessageType.valueOf((String) json.get("type")) == MessageType.HARD_MESSAGE_WITH_ARRAY_OF_ROOMS) {
                     try {
                         JSONArray rooms = (JSONArray) json.get("array");
                         Integer r = rooms.length();
@@ -107,7 +110,7 @@ public class Connection implements Closeable, Serializable{
                             for (int i = 0; i < rooms.length(); i++) {
                                 objects.add(rooms.getJSONObject(i));
                             }
-                        }catch (Exception e){
+                        } catch (Exception e) {
 
                         }
                         List<Room> finRoom = new ArrayList<>();
@@ -115,20 +118,21 @@ public class Connection implements Closeable, Serializable{
                             finRoom.add(new Room(obj.optString("name"), obj.optBoolean("lock"), obj.optInt("usersnum")));
                         }
                         return finRoom;
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e = e;
                         return null;
                     }
 
-                }else{
+                } else {
 
                     throw new IOException();
                 }
-            }else{
+            } else {
                 throw new IOException();
             }
         }
     }
+
     public List<Message> recieveHistory() throws JSONException, IOException {
         String result = "";
         synchronized (reader) {
@@ -149,26 +153,26 @@ public class Connection implements Closeable, Serializable{
                     }
                 }
                 JSONObject json = new JSONObject(result);
-                if(MessageType.valueOf(String.valueOf(json.get("type"))) == MessageType.HISTORY){
+                if (MessageType.valueOf(String.valueOf(json.get("type"))) == MessageType.HISTORY) {
                     JSONArray array = json.getJSONArray("array");
                     List<Message> msg = new ArrayList<>();
-                    for(int i = 0; i < array.length(); i++){
+                    for (int i = 0; i < array.length(); i++) {
                         Message tmpMessage = new Message();
                         tmpMessage.setType(MessageType.valueOf(array.getJSONObject(i).getString("type")));
                         tmpMessage.setSender(array.getJSONObject(i).getString("sender"));
-                        if(array.getJSONObject(i).has("data")){
+                        if (array.getJSONObject(i).has("data")) {
                             tmpMessage.setData(array.getJSONObject(i).getString("data"));
                         }
                         msg.add(tmpMessage);
                     }
                     return msg;
-                }else if(MessageType.valueOf(String.valueOf(json.get("type"))) == MessageType.CHECK_CONN){
+                } else if (MessageType.valueOf(String.valueOf(json.get("type"))) == MessageType.CHECK_CONN) {
                     HardMessage msg = new HardMessage();
                     msg.setType(MessageType.CONN_CONN);
                     send(msg);
                     List<Message> res = recieveHistory();
                     return res;
-                }else {
+                } else {
                     throw new IOException();
                 }
             }
@@ -238,15 +242,16 @@ public class Connection implements Closeable, Serializable{
                 }
             }
             throw new IOException();
-        }else{
+        } else {
             throw new IOException();
         }
     }
 
 
-    public SocketAddress getRemoteSocketAddress(){
+    public SocketAddress getRemoteSocketAddress() {
         return this.socket.getRemoteSocketAddress();
     }
+
     private boolean check(String address, int port) {
         try {
             Socket soc = new Socket();
@@ -259,11 +264,12 @@ public class Connection implements Closeable, Serializable{
         }
     }
 
-    public void close() throws IOException{
+    public void close() throws IOException {
         writer.close();
         reader.close();
         this.socket.close();
     }
+
     protected boolean isOnline() {
         String cs = Context.CONNECTIVITY_SERVICE;
         ConnectivityManager cm = (ConnectivityManager) activity.getSystemService(cs);

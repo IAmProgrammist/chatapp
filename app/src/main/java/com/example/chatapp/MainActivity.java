@@ -31,9 +31,11 @@ public class MainActivity extends AppCompatActivity {
     Button startButton;
     static Connection connection;
     public static Activity staticActivity;
-    public void setStaticActivity(){
+
+    public void setStaticActivity() {
         staticActivity = this;
     }
+
     static String roomId = "nodata";
     public static boolean relogin = false;
 
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             Connection.createInstance(socket);
             connection = Connection.getInstance();
             connection.receive();
-            if(Container.getLogin().equals("") && Container.getRoom_login().equals("")) {
+            if (Container.getLogin().equals("") && Container.getRoom_login().equals("")) {
                 startButton = findViewById(R.id.next);
                 startButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -63,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 });
-            }else{
+            } else {
                 HardMessage msg;
                 HardMessage hmsg = new HardMessage();
                 hmsg.setType(MessageType.HARD_MESSAGE_WITH_ARRAY_OF_LOGIN_USER);
@@ -80,53 +82,54 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         } catch (Exception e) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Ошибка!")
-                        .setMessage("Вы отключились!")
-                        .setCancelable(false)
-                        .setNegativeButton("Перезагрузить приложение",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        Container.nullate();
-                                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                                        startActivity(intent);
-                                        HardMessage message1 = new HardMessage();
-                                        message1.setType(MessageType.EXIT_PROGRAM);
-                                        try {
-                                            connection.send(message1);
-                                        } catch (Exception e) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Ошибка!")
+                    .setMessage("Вы отключились!")
+                    .setCancelable(false)
+                    .setNegativeButton("Перезагрузить приложение",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    Container.nullate();
+                                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                    HardMessage message1 = new HardMessage();
+                                    message1.setType(MessageType.EXIT_PROGRAM);
+                                    try {
+                                        connection.send(message1);
+                                    } catch (Exception e) {
 
-                                        }
                                     }
-                                }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            finishAffinity();
-                        } else {
-                            ActivityCompat.finishAffinity(MainActivity.this);
-                        }
+                                }
+                            }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        finishAffinity();
+                    } else {
+                        ActivityCompat.finishAffinity(MainActivity.this);
                     }
-                }).setPositiveButton("Перезайти в комнату", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        HardMessage message1 = new HardMessage();
-                        message1.setType(MessageType.EXIT_PROGRAM);
-                        try {
-                            connection.send(message1);
-                        } catch (Exception e) {
+                }
+            }).setPositiveButton("Перезайти в комнату", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    HardMessage message1 = new HardMessage();
+                    message1.setType(MessageType.EXIT_PROGRAM);
+                    try {
+                        connection.send(message1);
+                    } catch (Exception e) {
 
-                        }
-                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                        startActivity(intent);
                     }
-                });
-                AlertDialog alert = builder.create();
-                alert.show();
+                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                    startActivity(intent);
+                }
+            });
+            AlertDialog alert = builder.create();
+            alert.show();
 
         }
 
-}
+    }
+
     private static long back_pressed;
 
     @Override
@@ -162,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
         }
         back_pressed = System.currentTimeMillis();
     }
+
     private boolean check(String address, int port) {
 
         try {
@@ -174,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
     }
+
     protected boolean isOnline() {
         String cs = Context.CONNECTIVITY_SERVICE;
         ConnectivityManager cm = (ConnectivityManager) getSystemService(cs);

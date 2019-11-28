@@ -64,7 +64,8 @@ public class Container {
     public static void setLogin(String login) {
         Container.login = login;
     }
-    public static void nullate(){
+
+    public static void nullate() {
         nickname = "";
         login = "";
         password = "";

@@ -1,4 +1,5 @@
 package com.example.chatapp;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -21,15 +23,15 @@ public class LoginUserActivity extends AppCompatActivity {
         final CheckBox check = findViewById(R.id.remember);
         final EditText tiet1 = findViewById(R.id.login_login);
         final EditText tiet21 = findViewById(R.id.login_password);
-        if(SaveSharedPreference.getUserName(LoginUserActivity.this).length() != 0){
+        if (SaveSharedPreference.getUserName(LoginUserActivity.this).length() != 0) {
             tiet1.setText(SaveSharedPreference.getUserName(LoginUserActivity.this));
         }
-        if(SaveSharedPreference.getPassword(LoginUserActivity.this).length() != 0){
+        if (SaveSharedPreference.getPassword(LoginUserActivity.this).length() != 0) {
             tiet21.setText(SaveSharedPreference.getPassword(LoginUserActivity.this));
         }
-        if(SaveSharedPreference.getRemember(LoginUserActivity.this)){
+        if (SaveSharedPreference.getRemember(LoginUserActivity.this)) {
             check.setChecked(true);
-        }else{
+        } else {
             check.setChecked(false);
         }
         button5.setOnClickListener(new View.OnClickListener() {
@@ -50,11 +52,11 @@ public class LoginUserActivity extends AppCompatActivity {
                             break;
                         } else if (msg.getType() == MessageType.CHECK_USER_LOGIN_YES) {
 
-                            if(check.isChecked()){
+                            if (check.isChecked()) {
                                 SaveSharedPreference.setUserName(LoginUserActivity.this, tiet1.getText().toString());
                                 SaveSharedPreference.setPassword(LoginUserActivity.this, tiet21.getText().toString());
                                 SaveSharedPreference.setRemember(LoginUserActivity.this, true);
-                            }else{
+                            } else {
                                 SaveSharedPreference.setUserName(LoginUserActivity.this, "");
                                 SaveSharedPreference.setPassword(LoginUserActivity.this, "");
                                 SaveSharedPreference.setRemember(LoginUserActivity.this, false);
@@ -101,11 +103,13 @@ public class LoginUserActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(LoginUserActivity.this, LoginOrCreateUserActivity.class);
         startActivity(intent);
     }
+
     @Override
     protected void onPause() {
         Container.setLaunched(false);

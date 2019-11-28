@@ -2,6 +2,7 @@ package com.example.chatapp;
 
 public class HardMessage extends Message {
     String[] stuff;
+
     public HardMessage() {
         super();
         this.stuff = null;

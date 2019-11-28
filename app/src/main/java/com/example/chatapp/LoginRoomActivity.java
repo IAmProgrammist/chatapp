@@ -20,6 +20,7 @@ import static com.example.chatapp.MainActivity.connection;
 
 public class LoginRoomActivity extends AppCompatActivity {
     List<Object> stuff = new ArrayList<>();
+
     public static List<Object> getAllThisStuff() {
         List<Object> stuff = new ArrayList<>();
         return null;
@@ -58,7 +59,7 @@ public class LoginRoomActivity extends AppCompatActivity {
                             break;
                         }
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(LoginRoomActivity.this);
                     builder.setTitle("Ошибка!")
                             .setMessage("Вы отключились!")
@@ -93,11 +94,13 @@ public class LoginRoomActivity extends AppCompatActivity {
         });
 
     }
+
     public void onBackPressed() {
         Intent intent = new Intent(this, CreateRoomActivity.class);
         startActivity(intent);
 
     }
+
     @Override
     protected void onPause() {
         Container.setLaunched(false);

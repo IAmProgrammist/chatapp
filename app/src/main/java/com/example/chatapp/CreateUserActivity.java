@@ -30,20 +30,20 @@ public class CreateUserActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    if(login.getText().toString().length() < 4 || !password.getText().toString().matches(pat) || nickname.getText().toString().length() < 4 || nickname.getText().toString().contains(":")){
-                        if(login.getText().toString().length() < 4){
+                    if (login.getText().toString().length() < 4 || !password.getText().toString().matches(pat) || nickname.getText().toString().length() < 4 || nickname.getText().toString().contains(":")) {
+                        if (login.getText().toString().length() < 4) {
                             login.setError("Логин слишком короткий, он должен содержать как минимум 4 символа");
                         }
-                        if(!password.getText().toString().matches(pat)){
+                        if (!password.getText().toString().matches(pat)) {
                             password.setError("Пароль слишком легкий");
                         }
-                        if(nickname.getText().toString().length() < 4){
+                        if (nickname.getText().toString().length() < 4) {
                             nickname.setError("Никнейм слишком короткий, он должен содержать как минимум 4 символа");
                         }
-                        if(nickname.getText().toString().contains(":")){
+                        if (nickname.getText().toString().contains(":")) {
                             nickname.setError("Ваш ник не должен содержать символ ':'");
                         }
-                    }else {
+                    } else {
                         HardMessage hmsg = new HardMessage();
                         hmsg.setType(MessageType.HARD_MESSAGE_WITH_ARRAY_OF_REGISTER_USER);
                         hmsg.setStuff(new String[]{login.getText().toString(), password.getText().toString(), nickname.getText().toString()});
@@ -52,11 +52,11 @@ public class CreateUserActivity extends AppCompatActivity {
                         while (true) {
                             msg = connection.receive();
                             if (msg.getType() == MessageType.CHECK_USER_REGISTER_YES) {
-                                if(checkBox.isChecked()){
+                                if (checkBox.isChecked()) {
                                     SaveSharedPreference.setRemember(CreateUserActivity.this, true);
                                     SaveSharedPreference.setUserName(CreateUserActivity.this, login.getText().toString());
                                     SaveSharedPreference.setPassword(CreateUserActivity.this, password.getText().toString());
-                                }else {
+                                } else {
                                     SaveSharedPreference.setRemember(CreateUserActivity.this, false);
                                 }
                                 Container.setLogin(login.getText().toString());
@@ -111,6 +111,7 @@ public class CreateUserActivity extends AppCompatActivity {
         Intent intent = new Intent(CreateUserActivity.this, LoginOrCreateUserActivity.class);
         startActivity(intent);
     }
+
     @Override
     protected void onPause() {
         Container.setLaunched(false);

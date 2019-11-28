@@ -1,4 +1,5 @@
 package com.example.chatapp;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -8,9 +9,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
 import androidx.core.app.ActivityCompat;
+
 import com.example.chatapp.listViewStuff.ChatBubble;
+
 import org.json.JSONException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +42,7 @@ public class Client implements Runnable {
         txtView = ChatActivitry.curUsers;
         try {
             messages = connection.recieveHistory();
-            for(final Message message: messages){
+            for (final Message message : messages) {
                 if (message.getType() == MessageType.TEXT) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
@@ -174,14 +179,14 @@ public class Client implements Runnable {
                     HardMessage mj = new HardMessage();
                     mj.setType(MessageType.CONN_CONN);
                     connection.send(mj);
-                } else if(destroy){
+                } else if (destroy) {
                     break;
-                }else{
+                } else {
                     throw new IOException("Unexpected MessageType");
                 }
             }
         } catch (IOException e) {
-            if(Container.isLaunched()){
+            if (Container.isLaunched()) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -231,7 +236,8 @@ public class Client implements Runnable {
 
                     }
 
-                });}else{
+                });
+            } else {
                 HardMessage message1 = new HardMessage();
                 message1.setType(MessageType.EXIT_PROGRAM);
                 try {
@@ -239,8 +245,8 @@ public class Client implements Runnable {
                 } catch (Exception e1) {
 
                 }
-                while(true) {
-                    if(Container.isLaunched()) {
+                while (true) {
+                    if (Container.isLaunched()) {
                         Intent intent = new Intent(activity, MainActivity.class);
                         activity.startActivity(intent);
                         break;

@@ -108,6 +108,7 @@ public class CreateRoomActivity extends AppCompatActivity {
         startActivity(intent);
 
     }
+
     @Override
     protected void onPause() {
         Container.setLaunched(false);

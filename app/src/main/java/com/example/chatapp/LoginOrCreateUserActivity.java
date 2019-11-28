@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class LoginOrCreateUserActivity extends AppCompatActivity {
     private Button button2;
     private Button button4;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,11 +34,13 @@ public class LoginOrCreateUserActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     public void onBackPressed() {
         Toast.makeText(this, "Вы не можете вернуться на данной стадии.", Toast.LENGTH_SHORT).show();
 
     }
+
     @Override
     protected void onPause() {
         Container.setLaunched(false);

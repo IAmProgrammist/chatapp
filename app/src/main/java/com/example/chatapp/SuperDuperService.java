@@ -7,7 +7,7 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 
-public class SuperDuperService extends Service{
+public class SuperDuperService extends Service {
     Client client;
 
     @Nullable
