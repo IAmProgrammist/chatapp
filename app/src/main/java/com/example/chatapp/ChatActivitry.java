@@ -2,7 +2,12 @@ package com.example.chatapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -17,8 +22,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 
 import com.example.chatapp.listViewStuff.ChatAdapter;
 import com.example.chatapp.listViewStuff.ChatBubble;
@@ -26,6 +33,8 @@ import com.example.chatapp.listViewStuff.ChatBubble;
 import java.util.ArrayList;
 import java.util.List;
 
+import static androidx.core.app.NotificationCompat.PRIORITY_DEFAULT;
+import static androidx.core.app.NotificationCompat.PRIORITY_HIGH;
 import static com.example.chatapp.MainActivity.connection;
 
 public class ChatActivitry extends AppCompatActivity {
@@ -35,6 +44,11 @@ public class ChatActivitry extends AppCompatActivity {
     public static Activity staticActivity;
     public static List<String> users;
     public static TextView curUsers;
+    public static Activity me;
+    EditText editText;
+    public void lol(){
+        me = this;
+    }
 
     public void setStaticActivity() {
         staticActivity = this;
@@ -42,8 +56,8 @@ public class ChatActivitry extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        lol();
         Container.setLaunched(true);
-        Client.destroy = true;
         super.onCreate(savedInstanceState);
         String chat_name = getIntent().getExtras().getString("RoomName");
         setStaticActivity();
@@ -52,7 +66,7 @@ public class ChatActivitry extends AppCompatActivity {
         curUsers = findViewById(R.id.curUsers);
         ListView listView = findViewById(R.id.chatListView);
         ImageButton sendButton = (ImageButton) findViewById(R.id.button);
-        final EditText editText = findViewById(R.id.TextInputEditTextRoar);
+        editText = findViewById(R.id.TextInputEditTextRoar);
         bubbles = new ArrayList<>();
         chatBubbleArrayAdapter = new ChatAdapter(this, R.layout.my_buble, bubbles);
         listView.setAdapter(chatBubbleArrayAdapter);
@@ -145,7 +159,6 @@ public class ChatActivitry extends AppCompatActivity {
                                     } catch (Exception e) {
 
                                     }
-                                    Client.destroy = true;
                                     Intent intent = new Intent(ChatActivitry.this, MainActivity.class);
                                     startActivity(intent);
                                 }
@@ -161,7 +174,6 @@ public class ChatActivitry extends AppCompatActivity {
                         } catch (Exception e1) {
 
                         }
-                        Client.destroy = true;
                         Intent intent = new Intent(ChatActivitry.this, MainActivity.class);
                         startActivity(intent);
                     }
@@ -172,6 +184,28 @@ public class ChatActivitry extends AppCompatActivity {
         startService(chat);
         Toast.makeText(this, res_trans, Toast.LENGTH_SHORT);
     }
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public static void notificate(String title, String message){
+        Intent resultIntent = me.getIntent();
+        NotificationManager notificationManager = (NotificationManager) me.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(me.getApplicationContext(), "Chat channel only for RChat")
+                        .setAutoCancel(false)
+                        .setSmallIcon(R.drawable.logo_logo)
+                        .setWhen(System.currentTimeMillis())
+                        .setContentTitle(title)
+                        .setContentText(message)
+                        .setPriority(PRIORITY_DEFAULT);
+        createChannelIfNeeded(notificationManager);
+        notificationManager.notify(101, notificationBuilder.build());
+    }
+    public static void createChannelIfNeeded(NotificationManager manager) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel("Chat channel only for RChat", "Chat channel only for RChat", NotificationManager.IMPORTANCE_DEFAULT);
+            manager.createNotificationChannel(notificationChannel);
+        }
+    }
+
 
 
     @Override

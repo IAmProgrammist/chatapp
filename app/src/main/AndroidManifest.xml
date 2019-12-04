@@ -9,6 +9,7 @@
         android:noHistory="true"
         android:roundIcon="@drawable/logo_logo"
         android:supportsRtl="true"
+        android:launchMode="singleTask"
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.gms.ads.AD_MANAGER_APP"

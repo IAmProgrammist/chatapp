@@ -24,8 +24,9 @@
             android:id="@+id/msg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="right"
+            android:gravity="left"
             android:maxWidth="200dp"
+            android:padding="5dp"
             android:text="Message"
             android:textColor="@color/primary_text"
             android:textSize="20sp" />

@@ -8,13 +8,20 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,7 +29,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-public class MainActivity extends AppCompatActivity {
+import static java.lang.Double.NaN;
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
     static ImageButton button;
     Button button2;
     Button button4;
@@ -38,10 +47,18 @@ public class MainActivity extends AppCompatActivity {
 
     static String roomId = "nodata";
     public static boolean relogin = false;
+    private ImageView img;
+    private ImageView img2;
+    private double ax, ay;
+    private SensorManager sensorManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
+            img = findViewById(R.id.splatoon);
+            img2 = findViewById(R.id.img2);
+            sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
+            sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
             super.onCreate(savedInstanceState);
             setContentView(R.layout.start_screen);
             setStaticActivity();
@@ -132,29 +149,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static long back_pressed;
 
-    @Override
-    protected void onPause() {
-        Container.setLaunched(false);
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        Container.setLaunched(true);
-        super.onResume();
-    }
-
-    @Override
-    protected void onStop() {
-        Container.setLaunched(false);
-        super.onStop();
-    }
-
-    @Override
-    protected void onStart() {
-        Container.setLaunched(true);
-        super.onStart();
-    }
 
     @Override
     public void onBackPressed() {
@@ -187,6 +181,43 @@ public class MainActivity extends AppCompatActivity {
         } else {
             return true;
         }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
+            ax=event.values[0];
+            ay=event.values[1];
+            ax = Math.sqrt(Math.abs(ax)) * (ax / Math.abs(ax)) * 10 * -1;
+            ay = Math.sqrt(Math.abs(ay)) * (ay / Math.abs(ay)) * 10;
+            if(Double.isNaN(ax) || Double.isInfinite(ax)){
+                ax = 0;
+            }
+            if(Double.isNaN(ay) || Double.isInfinite(ay)){
+                ay = 0;
+            }
+            if(img == null){
+                img = findViewById(R.id.splatoon);
+            }
+            if(img2 == null){
+                img2 = findViewById(R.id.img2);
+            }
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    img.setTranslationX((float) ax);
+                    img.setTranslationY((float) ay);
+                    img2.setTranslationX((float) ax * 2f);
+                    img2.setTranslationY((float) ay * 2f);
+
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
         /*try {
             if (android.os.Build.VERSION.SDK_INT > 9) {

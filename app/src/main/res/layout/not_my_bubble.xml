@@ -6,7 +6,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:background="@drawable/not_my_message"
+        android:background="@drawable/non_my_message"
         android:orientation="vertical"
         android:paddingBottom="10dp">
 
@@ -27,6 +27,7 @@
             android:gravity="left"
             android:maxWidth="200dp"
             android:text="Message"
+            android:padding="5dp"
             android:textColor="@color/primary_text"
             android:textSize="20sp" />
 

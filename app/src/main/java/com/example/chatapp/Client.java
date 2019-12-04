@@ -2,6 +2,9 @@ package com.example.chatapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -10,7 +13,10 @@ import android.os.Looper;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.example.chatapp.listViewStuff.ChatBubble;
 
@@ -30,6 +36,8 @@ public class Client implements Runnable {
     public static List<Message> messages;
     public static Object lock = new Object();
     public static boolean destroy;
+    private static final int NOTIFY_ID = 213;
+    private static String CHANNEL_ID = "Chat channel";
 
     @Override
     public void run() {
@@ -104,6 +112,7 @@ public class Client implements Runnable {
                 if (message == null) {
                 } else if (message.getType() == MessageType.TEXT) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
                         @Override
                         public void run() {
                             synchronized (lock) {
@@ -115,6 +124,10 @@ public class Client implements Runnable {
                                 }
                                 bubbles.add(chatBubble);
                                 chatBubbleArrayAdapter.notifyDataSetChanged();
+                                boolean m = Container.isLaunched();
+                                if(!Container.isLaunched()){
+                                    ChatActivitry.notificate(message.getSender(), message.getData());
+                                }
                             }
                         }
                     });
@@ -123,16 +136,28 @@ public class Client implements Runnable {
                         @Override
                         public void run() {
                             synchronized (lock) {
-                                ChatBubble cuccle = null;
-                                if (message.getSender().equals(ChatActivitry.res_trans)) {
-                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " присоединился к чату.", true);
-                                } else {
-                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " присоединился к чату.", false);
-                                }
-                                bubbles.add(cuccle);
-                                chatBubbleArrayAdapter.notifyDataSetChanged();
-                                if (!message.getSender().equals(ChatActivitry.res_trans)) {
-                                    users.add(message.getData());
+
+                                if (!message.getSender().equals(ChatActivitry.res_trans) && !users.contains(message.getSender())) {
+                                    ChatBubble cuccle = null;
+                                    if (message.getSender().equals(ChatActivitry.res_trans)) {
+                                        cuccle = new ChatBubble(message.getSender(), message.getSender() + " присоединился к чату.", true);
+                                    } else {
+                                        cuccle = new ChatBubble(message.getSender(), message.getSender() + " присоединился к чату.", false);
+                                    }
+                                    bubbles.add(cuccle);
+                                    chatBubbleArrayAdapter.notifyDataSetChanged();
+                                    users.add(message.getSender());
+                                    txtView.setText("В комнате " + users.size() + " пользователей.");
+                                }else if(!users.contains(message.getSender())){
+                                    ChatBubble cuccle = null;
+                                    if (message.getSender().equals(ChatActivitry.res_trans)) {
+                                        cuccle = new ChatBubble(message.getSender(), message.getSender() + " присоединился к чату.", true);
+                                    } else {
+                                        cuccle = new ChatBubble(message.getSender(), message.getSender() + " присоединился к чату.", false);
+                                    }
+                                    bubbles.add(cuccle);
+                                    chatBubbleArrayAdapter.notifyDataSetChanged();
+                                    users.add(message.getSender());
                                     txtView.setText("В комнате " + users.size() + " пользователей.");
                                 }
                             }
@@ -143,19 +168,18 @@ public class Client implements Runnable {
                         @Override
                         public void run() {
                             synchronized (lock) {
-                                ChatBubble cuccle = null;
-                                if (message.getSender().equals(ChatActivitry.res_trans)) {
-                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " вышел из чата.", true);
-                                } else {
-                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " вышел из чата.", false);
-                                }
-                                bubbles.add(cuccle);
-                                chatBubbleArrayAdapter.notifyDataSetChanged();
-                                if (!message.getSender().equals(ChatActivitry.res_trans)) {
-                                    users.remove(message.getData());
+                                if (users.contains(message.getSender())) {
+                                    ChatBubble cuccle = null;
+                                    if (message.getSender().equals(ChatActivitry.res_trans)) {
+                                        cuccle = new ChatBubble(message.getSender(), message.getSender() + " вышел из чата.", true);
+                                    } else {
+                                        cuccle = new ChatBubble(message.getSender(), message.getSender() + " вышел из чата.", false);
+                                    }
+                                    bubbles.add(cuccle);
+                                    chatBubbleArrayAdapter.notifyDataSetChanged();
+                                    users.remove(message.getSender());
                                     txtView.setText("В комнате " + users.size() + " пользователей.");
                                 }
-                                txtView.setText("В комнате " + users.size() + " пользователей.");
                             }
                         }
                     });
@@ -169,7 +193,9 @@ public class Client implements Runnable {
                         public void run() {
                             synchronized (lock) {
                                 for (String j : message.getStuff()) {
-                                    users.add(j);
+                                    if(!users.contains(j)) {
+                                        users.add(j);
+                                    }
                                 }
                                 txtView.setText("В комнате " + users.size() + " пользователей.");
                             }
@@ -179,10 +205,10 @@ public class Client implements Runnable {
                     HardMessage mj = new HardMessage();
                     mj.setType(MessageType.CONN_CONN);
                     connection.send(mj);
-                } else if (destroy) {
-                    break;
-                } else {
-                    throw new IOException("Unexpected MessageType");
+                } else if(destroy) {
+                    return;
+                }else{
+                    throw new IOException();
                 }
             }
         } catch (IOException e) {

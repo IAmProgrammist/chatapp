@@ -132,27 +132,5 @@ public class LoginRoomListViewActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    @Override
-    protected void onPause() {
-        Container.setLaunched(false);
-        super.onPause();
-    }
 
-    @Override
-    protected void onResume() {
-        Container.setLaunched(true);
-        super.onResume();
-    }
-
-    @Override
-    protected void onStop() {
-        Container.setLaunched(false);
-        super.onStop();
-    }
-
-    @Override
-    protected void onStart() {
-        Container.setLaunched(true);
-        super.onStart();
-    }
 }

@@ -31,7 +31,7 @@ public class ChatBubble {
     }
 
     public String getDate() {
-        String result = String.format("<%d.%d.%d %d:%d:%d.%d>", date.getDate(), date.getMonth() + 1, date.getYear() + 1900, date.getHours(), date.getMinutes(), date.getSeconds(), getMilliseconds(date));
+        String result = String.format("%d:%d", date.getHours(), date.getMinutes());
         return result;
     }
     private static Integer getMilliseconds(Date date){
