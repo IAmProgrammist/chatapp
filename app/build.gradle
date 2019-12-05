@@ -1,6 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.chatapp"
@@ -27,5 +33,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.gms:play-services-ads:18.2.0'
+    androidTestCompile 'junit:junit:4.12'
+    testCompile 'junit:junit:4.12'
 
 }

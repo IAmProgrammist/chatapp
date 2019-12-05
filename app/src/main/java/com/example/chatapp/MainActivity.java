@@ -25,6 +25,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -55,13 +57,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
-            img = findViewById(R.id.splatoon);
-            img2 = findViewById(R.id.img2);
+
             sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
             sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
             super.onCreate(savedInstanceState);
             setContentView(R.layout.start_screen);
             setStaticActivity();
+            img = findViewById(R.id.splatoon);
+            img2 = findViewById(R.id.img2);
             setTitle("Добро пожаловать!");
             if (android.os.Build.VERSION.SDK_INT > 9) {
                 StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 intent.putExtra("RoomName", msg.getData());
                 startActivity(intent);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Ошибка!")
                     .setMessage("Вы отключились!")
@@ -143,6 +146,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             AlertDialog alert = builder.create();
             alert.show();
 
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
     }
@@ -186,32 +191,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
-            ax=event.values[0];
-            ay=event.values[1];
-            ax = Math.sqrt(Math.abs(ax)) * (ax / Math.abs(ax)) * 10 * -1;
-            ay = Math.sqrt(Math.abs(ay)) * (ay / Math.abs(ay)) * 10;
-            if(Double.isNaN(ax) || Double.isInfinite(ax)){
-                ax = 0;
-            }
-            if(Double.isNaN(ay) || Double.isInfinite(ay)){
-                ay = 0;
-            }
-            if(img == null){
-                img = findViewById(R.id.splatoon);
-            }
-            if(img2 == null){
-                img2 = findViewById(R.id.img2);
-            }
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    img.setTranslationX((float) ax);
-                    img.setTranslationY((float) ay);
-                    img2.setTranslationX((float) ax * 2f);
-                    img2.setTranslationY((float) ay * 2f);
-
+            if(img != null && img2 != null) {
+                ax = event.values[0];
+                ay = event.values[1];
+                ax = Math.sqrt(Math.abs(ax)) * (ax / Math.abs(ax)) * 10 * -1;
+                ay = Math.sqrt(Math.abs(ay)) * (ay / Math.abs(ay)) * 10;
+                if (Double.isNaN(ax) || Double.isInfinite(ax)) {
+                    ax = 0;
                 }
-            });
+                if (Double.isNaN(ay) || Double.isInfinite(ay)) {
+                    ay = 0;
+                }
+                if (img == null) {
+                    img = findViewById(R.id.splatoon);
+                }
+                if (img2 == null) {
+                    img2 = findViewById(R.id.img2);
+                }
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            img.setTranslationX((float) ax);
+                            img.setTranslationY((float) ay);
+                            img2.setTranslationX((float) ax * 2f);
+                            img2.setTranslationY((float) ay * 2f);
+                        }catch (NullPointerException e){
+
+                        }
+
+                    }
+                });
+            }
         }
     }
 
