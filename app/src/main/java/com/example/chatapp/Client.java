@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -36,11 +37,13 @@ public class Client implements Runnable {
     public static List<Message> messages;
     public static Object lock = new Object();
     public static boolean destroy;
+    public static ListView listView;
     private static final int NOTIFY_ID = 213;
     private static String CHANNEL_ID = "Chat channel";
 
     @Override
     public void run() {
+        listView = ChatActivitry.listView;
         destroy = false;
         activity = ChatActivitry.staticActivity;
         users = new ArrayList<>();
@@ -58,9 +61,10 @@ public class Client implements Runnable {
                             synchronized (lock) {
                                 ChatBubble chatBubble;
                                 if (message.getSender().equals(ChatActivitry.res_trans)) {
-                                    chatBubble = new ChatBubble(message.getSender(), message.getData(), true);
+                                    chatBubble = new ChatBubble(message.getSender(), message.getData(), true, message.getDate().getTime());
                                 } else {
-                                    chatBubble = new ChatBubble(message.getSender(), message.getData(), false);
+                                    chatBubble = new ChatBubble(message.getSender(), message.getData(), false, message.getDate().getTime());
+
                                 }
                                 bubbles.add(chatBubble);
                                 chatBubbleArrayAdapter.notifyDataSetChanged();
@@ -74,12 +78,12 @@ public class Client implements Runnable {
                             synchronized (lock) {
                                 ChatBubble cuccle = null;
                                 if (message.getSender().equals(ChatActivitry.res_trans)) {
-                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " присоединился к чату.", true);
+                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " присоединился к чату.", true, message.getDate().getTime());
                                 } else {
-                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " присоединился к чату.", false);
+                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " присоединился к чату.", false, message.getDate().getTime());
                                 }
-                                bubbles.add(cuccle);
-                                chatBubbleArrayAdapter.notifyDataSetChanged();
+                                //bubbles.add(cuccle);
+                                //chatBubbleArrayAdapter.notifyDataSetChanged();
                             }
                         }
                     });
@@ -90,12 +94,12 @@ public class Client implements Runnable {
                             synchronized (lock) {
                                 ChatBubble cuccle = null;
                                 if (message.getSender().equals(ChatActivitry.res_trans)) {
-                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " вышел из чата.", true);
+                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " вышел из чата.", true, message.getDate().getTime());
                                 } else {
-                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " вышел из чата.", false);
+                                    cuccle = new ChatBubble(message.getSender(), message.getSender() + " вышел из чата.", false, message.getDate().getTime());
                                 }
-                                bubbles.add(cuccle);
-                                chatBubbleArrayAdapter.notifyDataSetChanged();
+                                //bubbles.add(cuccle);
+                                //chatBubbleArrayAdapter.notifyDataSetChanged();
                             }
                         }
                     });
@@ -109,7 +113,8 @@ public class Client implements Runnable {
         try {
             while (true) {
                 final HardMessage message = (HardMessage) connection.receive();
-                if (message == null) {
+                if (Thread.currentThread().isInterrupted()) {
+                    return;
                 } else if (message.getType() == MessageType.TEXT) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -147,7 +152,11 @@ public class Client implements Runnable {
                                     bubbles.add(cuccle);
                                     chatBubbleArrayAdapter.notifyDataSetChanged();
                                     users.add(message.getSender());
-                                    txtView.setText("В комнате " + users.size() + " пользователей.");
+                                    if(users.size() == 1){
+                                        txtView.setText("В комнате только вы");
+                                    }else {
+                                        txtView.setText("В комнате " + users.size() + " " + speakInRussian(users.size()));
+                                    }
                                 }else if(!users.contains(message.getSender())){
                                     ChatBubble cuccle = null;
                                     if (message.getSender().equals(ChatActivitry.res_trans)) {
@@ -158,7 +167,11 @@ public class Client implements Runnable {
                                     bubbles.add(cuccle);
                                     chatBubbleArrayAdapter.notifyDataSetChanged();
                                     users.add(message.getSender());
-                                    txtView.setText("В комнате " + users.size() + " пользователей.");
+                                    if(users.size() == 1){
+                                        txtView.setText("В комнате только вы");
+                                    }else {
+                                        txtView.setText("В комнате " + users.size() + " " + speakInRussian(users.size()));
+                                    }
                                 }
                             }
                         }
@@ -178,7 +191,11 @@ public class Client implements Runnable {
                                     bubbles.add(cuccle);
                                     chatBubbleArrayAdapter.notifyDataSetChanged();
                                     users.remove(message.getSender());
-                                    txtView.setText("В комнате " + users.size() + " пользователей.");
+                                    if(users.size() == 1){
+                                        txtView.setText("В комнате только вы");
+                                    }else {
+                                        txtView.setText("В комнате " + users.size() + " " + speakInRussian(users.size()));
+                                    }
                                 }
                             }
                         }
@@ -197,7 +214,11 @@ public class Client implements Runnable {
                                         users.add(j);
                                     }
                                 }
-                                txtView.setText("В комнате " + users.size() + " пользователей.");
+                                if(users.size() == 1){
+                                    txtView.setText("В комнате только вы");
+                                }else {
+                                    txtView.setText("В комнате " + users.size() + " " + speakInRussian(users.size()));
+                                }
                             }
                         }
                     });
@@ -205,8 +226,8 @@ public class Client implements Runnable {
                     HardMessage mj = new HardMessage();
                     mj.setType(MessageType.CONN_CONN);
                     connection.send(mj);
-                } else if(destroy) {
-                    return;
+                } else if(message.getType().equals(MessageType.HISTORY_END)) {
+                    destroy = true;
                 }else{
                     throw new IOException();
                 }
@@ -239,8 +260,10 @@ public class Client implements Runnable {
                             public void onClick(DialogInterface dialog, int which) {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                     activity.finishAffinity();
+                                    Container.nullate();
                                 } else {
                                     ActivityCompat.finishAffinity(activity);
+                                    Container.nullate();
                                 }
                             }
                         }).setPositiveButton("Перезайти в комнату", new DialogInterface.OnClickListener() {
@@ -302,5 +325,25 @@ public class Client implements Runnable {
             }
         }
         return res;
+    }
+    public String speakInRussian(int num)
+    {
+        int preLastDigit = num % 100 / 10;
+        if (preLastDigit == 1)
+        {
+            return "пользователей";
+        }
+
+        switch (num % 10)
+        {
+            case 1:
+                return "пользователь";
+            case 2:
+            case 3:
+            case 4:
+                return "пользователя";
+            default:
+                return "пользователей";
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.chatapp;
 
 import android.content.Intent;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +19,7 @@ public class JoinOrCreateRoomActivity extends AppCompatActivity {
         join_room.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(JoinOrCreateRoomActivity.this, LoginRoomListViewActivity.class);
                 startActivity(intent);
             }
@@ -25,6 +27,7 @@ public class JoinOrCreateRoomActivity extends AppCompatActivity {
         create_room.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(JoinOrCreateRoomActivity.this, CreateRoomActivity.class);
                 startActivity(intent);
             }

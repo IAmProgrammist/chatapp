@@ -10,11 +10,13 @@ public class Message implements Serializable {
     private String data;
     private String roomId;
     private String sender;
+    private Date date;
 
     public Message() {
         type = null;
         data = null;
         roomId = null;
+        date = null;
     }
 
     public String getSender() {
@@ -49,4 +51,11 @@ public class Message implements Serializable {
         this.roomId = roomId;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(long date) {
+        this.date = new Date(date);
+    }
 }

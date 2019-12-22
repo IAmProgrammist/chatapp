@@ -31,8 +31,15 @@ public class ChatBubble {
     }
 
     public String getDate() {
-        String result = String.format("%d:%d", date.getHours(), date.getMinutes());
+        String result = String.format("%s:%s", trimTime(date.getHours()), trimTime(date.getMinutes()));
         return result;
+    }
+    private String trimTime(int j){
+        if(j < 10){
+            return "0" + String.valueOf(j);
+        }else{
+            return String.valueOf(j);
+        }
     }
     private static Integer getMilliseconds(Date date){
         int n = (int) (date.getTime() % 1000);

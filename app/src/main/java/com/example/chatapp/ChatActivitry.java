@@ -1,6 +1,7 @@
 package com.example.chatapp;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -10,8 +11,10 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +33,12 @@ import androidx.core.app.NotificationCompat;
 import com.example.chatapp.listViewStuff.ChatAdapter;
 import com.example.chatapp.listViewStuff.ChatBubble;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static androidx.core.app.NotificationCompat.PRIORITY_DEFAULT;
@@ -45,6 +53,7 @@ public class ChatActivitry extends AppCompatActivity {
     public static List<String> users;
     public static TextView curUsers;
     public static Activity me;
+    public static ListView listView;
     EditText editText;
     public void lol(){
         me = this;
@@ -56,6 +65,7 @@ public class ChatActivitry extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SuperDuperService.shouldContinue = false;
         lol();
         Container.setLaunched(true);
         super.onCreate(savedInstanceState);
@@ -64,7 +74,7 @@ public class ChatActivitry extends AppCompatActivity {
         setTitle(chat_name);
         setContentView(R.layout.activity_main);
         curUsers = findViewById(R.id.curUsers);
-        ListView listView = findViewById(R.id.chatListView);
+        listView = findViewById(R.id.chatListView);
         ImageButton sendButton = (ImageButton) findViewById(R.id.button);
         editText = findViewById(R.id.TextInputEditTextRoar);
         bubbles = new ArrayList<>();
@@ -74,19 +84,22 @@ public class ChatActivitry extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    if (!editText.getText().toString().equals("")) {
+                    if (!editText.getText().toString().trim().equals("")) {
+                        Container.setLaunched(true);
                         if (msg_pressed + 2000 < System.currentTimeMillis()) {
                             Connection connection = Connection.getInstance();
                             HardMessage message = new HardMessage();
                             message.setType(MessageType.TEXT);
-                            message.setData(editText.getText().toString());
+                            message.setData(editText.getText().toString().trim());
                             editText.setText("");
                             connection.send(message);
                             msg_pressed = System.currentTimeMillis();
                         } else {
                             Toast.makeText(getBaseContext(), "Вы отправляете сообщения слишком часто!", Toast.LENGTH_SHORT).show();
                         }
-
+                    }else{
+                        editText.setText("");
+                        Container.setLaunched(true);
                     }
                 } catch (Exception e) {
                     if (Container.isLaunched()) {
@@ -181,6 +194,7 @@ public class ChatActivitry extends AppCompatActivity {
             }
         });
         Intent chat = new Intent(this, SuperDuperService.class);
+        SuperDuperService.shouldContinue = true;
         startService(chat);
         Toast.makeText(this, res_trans, Toast.LENGTH_SHORT);
     }
@@ -241,7 +255,9 @@ public class ChatActivitry extends AppCompatActivity {
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 finishAffinity();
+                Container.nullate();
             } else {
+                Container.nullate();
                 ActivityCompat.finishAffinity(this);
             }
         } else if (id == R.id.change) {

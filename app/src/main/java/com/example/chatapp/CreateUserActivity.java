@@ -24,18 +24,17 @@ public class CreateUserActivity extends AppCompatActivity {
         final EditText login = findViewById(R.id.register_login);
         final EditText password = findViewById(R.id.register_password);
         final EditText nickname = findViewById(R.id.register_nickname);
-        final String pat = "(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9@#$%]).{8,}";
         final CheckBox checkBox = findViewById(R.id.checkBoxReg);
         button6.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    if (login.getText().toString().length() < 4 || !password.getText().toString().matches(pat) || nickname.getText().toString().length() < 4 || nickname.getText().toString().contains(":")) {
+                    if (login.getText().toString().length() < 4 || password.getText().toString().length() < 8 || nickname.getText().toString().length() < 4 || nickname.getText().toString().contains(":")) {
                         if (login.getText().toString().length() < 4) {
                             login.setError("Логин слишком короткий, он должен содержать как минимум 4 символа");
                         }
-                        if (!password.getText().toString().matches(pat)) {
-                            password.setError("Пароль слишком легкий");
+                        if (password.getText().toString().length() < 8) {
+                            password.setError("Пароль слишком короткий");
                         }
                         if (nickname.getText().toString().length() < 4) {
                             nickname.setError("Никнейм слишком короткий, он должен содержать как минимум 4 символа");

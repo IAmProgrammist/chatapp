@@ -8,11 +8,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
-
+            SuperDuperService.shouldContinue = false;
             sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
             sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
             super.onCreate(savedInstanceState);
@@ -70,36 +72,84 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
                 StrictMode.setThreadPolicy(policy);
             }
-            String serverAddress = "82.151.126.74";          //82.151.126.74
+            String serverAddress = getString(R.string.ip);          //82.151.126.74
             int serverPort = 2156;
             Socket socket = new Socket(serverAddress, serverPort);
             Connection.createInstance(socket);
             connection = Connection.getInstance();
-            connection.receive();
-            if (Container.getLogin().equals("") && Container.getRoom_login().equals("")) {
+            final Message y = connection.receive();
+            String versionName = "";
+            try {
+                versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            if(y.getType() == MessageType.CONNECTED && y.getSender().equals(versionName)) {
+                if (Container.getLogin().equals("") && Container.getRoom_login().equals("")) {
+                    startButton = findViewById(R.id.next);
+                    startButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            Intent intent = new Intent(MainActivity.this, LoginOrCreateUserActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+                } else {
+                    HardMessage msg;
+                    HardMessage hmsg = new HardMessage();
+                    hmsg.setType(MessageType.HARD_MESSAGE_WITH_ARRAY_OF_LOGIN_USER);
+                    hmsg.setStuff(new String[]{Container.getLogin(), Container.getPassword()});
+                    connection.send(hmsg);
+                    msg = (HardMessage) connection.receive();
+                    Container.setNickname(msg.getData());
+                    hmsg.setType(MessageType.HARD_MESSAGE_WITH_ARRAY_OF_LOGIN_ROOM);
+                    hmsg.setStuff(new String[]{Container.getRoom_login(), Container.getRoom_password()});
+                    connection.send(hmsg);
+                    msg = (HardMessage) connection.receive();
+                    Intent intent = new Intent(this, ChatActivitry.class);
+                    intent.putExtra("RoomName", msg.getData());
+                    startActivity(intent);
+                }
+            }else{
                 startButton = findViewById(R.id.next);
                 startButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(MainActivity.this, LoginOrCreateUserActivity.class);
-                        startActivity(intent);
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("Вышла новая версия приложения!")
+                                .setMessage("Вы сможете скачать её на нашем официальном сайте 'http://rchat.info/'! Вот список обновлений: " + '\n' + y.getData())
+                                .setCancelable(false)
+                                .setNegativeButton("Открыть сайт",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                Container.nullate();
+                                                Intent intent = new Intent(Intent.ACTION_VIEW,  Uri.parse("http://rchat.info"));
+                                                startActivity(intent);
+                                                HardMessage message1 = new HardMessage();
+                                                message1.setType(MessageType.EXIT_PROGRAM);
+                                                try {
+                                                    connection.send(message1);
+                                                } catch (Exception e) {
+
+                                                }
+                                            }
+                                        }).setNeutralButton("Выйти из приложения", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    finishAffinity();
+                                    Container.nullate();
+                                } else {
+                                    ActivityCompat.finishAffinity(MainActivity.this);
+                                }
+                            }
+                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
                     }
                 });
-            } else {
-                HardMessage msg;
-                HardMessage hmsg = new HardMessage();
-                hmsg.setType(MessageType.HARD_MESSAGE_WITH_ARRAY_OF_LOGIN_USER);
-                hmsg.setStuff(new String[]{Container.getLogin(), Container.getPassword()});
-                connection.send(hmsg);
-                msg = (HardMessage) connection.receive();
-                Container.setNickname(msg.getData());
-                hmsg.setType(MessageType.HARD_MESSAGE_WITH_ARRAY_OF_LOGIN_ROOM);
-                hmsg.setStuff(new String[]{Container.getRoom_login(), Container.getRoom_password()});
-                connection.send(hmsg);
-                msg = (HardMessage) connection.receive();
-                Intent intent = new Intent(this, ChatActivitry.class);
-                intent.putExtra("RoomName", msg.getData());
-                startActivity(intent);
             }
         } catch (IOException e) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);

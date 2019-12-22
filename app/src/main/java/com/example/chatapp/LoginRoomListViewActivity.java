@@ -36,7 +36,7 @@ public class LoginRoomListViewActivity extends AppCompatActivity {
             HardMessage tmpMessage = new HardMessage();
             tmpMessage.setType(MessageType.LOGIN_ROOM_IN_CHECK);
             connection.send(tmpMessage);
-            List<Room> rooms = connection.receiveRooms();
+            List<Room> rooms = connection.recieveRooms();
             List<String> titles = new ArrayList<>();
             List<String> descs = new ArrayList<>();
             List<Integer> icons = new ArrayList<>();
@@ -45,7 +45,7 @@ public class LoginRoomListViewActivity extends AppCompatActivity {
                 if (m.getUsers() == 0) {
                     descs.add("В комнате нет пользователей");
                 } else {
-                    descs.add("В комнате " + m.getUsers() + " пользователей");
+                    descs.add("В комнате " + m.getUsers() + " " + speakInRussian(m.getUsers()));
                 }
                 if (m.isPassword()) {
                     icons.add(R.drawable.lock);
@@ -119,6 +119,26 @@ public class LoginRoomListViewActivity extends AppCompatActivity {
         });
 
         return true;
+    }
+    public String speakInRussian(int num)
+    {
+        int preLastDigit = num % 100 / 10;
+        if (preLastDigit == 1)
+        {
+            return "пользователей";
+        }
+
+        switch (num % 10)
+        {
+            case 1:
+                return "пользователь";
+            case 2:
+            case 3:
+            case 4:
+                return "пользователя";
+            default:
+                return "пользователей";
+        }
     }
 
     @Override

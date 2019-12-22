@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">RChat</string>
+    <string name="ip">37.230.114.103</string>
+    <string name="caution_local">"192.168.1.39" for local tests</string>
+    <string name="caution_global">"37.230.114.103" for global tests</string>
 </resources>
+

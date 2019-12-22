@@ -3,6 +3,7 @@ package com.example.chatapp;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -31,6 +32,7 @@ public class CreateRoomActivity extends AppCompatActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (!password.getText().toString().equals("") || login.getText().toString().length() < 4) {
                     if (login.getText().toString().length() < 4 || password.getText().toString().length() < 4) {
                         if (login.getText().toString().length() < 4) {
@@ -61,6 +63,7 @@ public class CreateRoomActivity extends AppCompatActivity {
                 msg = connection.receive();
                 if (msg.getType() == MessageType.ROOM_CREATE_EXISTS) {
                     login.setError("Комната уже существует!");
+                    break;
                 } else if (msg.getType() == MessageType.CREATE_ROOM_OKAY) {
                     Container.setRoom_login(login.getText().toString());
                     Container.setRoom_password(password.getText().toString());

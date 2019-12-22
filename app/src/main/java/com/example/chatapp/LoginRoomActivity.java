@@ -3,6 +3,7 @@ package com.example.chatapp;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -38,6 +39,7 @@ public class LoginRoomActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 try {
                     HardMessage hmsg = new HardMessage();
                     hmsg.setType(MessageType.HARD_MESSAGE_WITH_ARRAY_OF_LOGIN_ROOM);
@@ -96,7 +98,7 @@ public class LoginRoomActivity extends AppCompatActivity {
     }
 
     public void onBackPressed() {
-        Intent intent = new Intent(this, CreateRoomActivity.class);
+        Intent intent = new Intent(this, JoinOrCreateRoomActivity.class);
         startActivity(intent);
 
     }

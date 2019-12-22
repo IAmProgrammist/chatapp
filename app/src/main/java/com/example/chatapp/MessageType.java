@@ -77,5 +77,8 @@ public enum MessageType {
     USERS_LIST,
     CHECK_CONN,
     CONN_CONN,
-    HISTORY
+    HISTORY,
+    IGNORE,
+    HISTORY_ADD,
+    HISTORY_END
 }
